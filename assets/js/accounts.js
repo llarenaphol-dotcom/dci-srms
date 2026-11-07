@@ -4,30 +4,8 @@ const ROLES = ["admin", "staff", "dean"];
 let me = null,
   users = [];
 
-// Send a change to api/users.php. Always returns { success, message }.
-async function call(method, body, query = "") {
-  try {
-    const r = await fetch("api/users.php" + query, {
-      method,
-      body: body && JSON.stringify(body),
-    });
-    return await r.json();
-  } catch (e) {
-    return {
-      success: false,
-      message: "Something went wrong. Check that Apache and MySQL are running.",
-    };
-  }
-}
-
-function toast(m) {
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.setAttribute("role", "status");
-  t.textContent = m;
-  document.body.append(t);
-  setTimeout(() => t.remove(), 2500);
-}
+const call = (method, body, query = "") =>
+  send("api/users.php" + query, method, body);
 
 async function load() {
   try {
@@ -57,46 +35,26 @@ async function load() {
     '<tr><td colspan="4" class="text-center text-mut">No accounts yet.</td></tr>';
 }
 
-// One dialog for add / reset / remove. onSubmit returns an error message, or '' to close.
-function dialog(title, fields, okLabel, onSubmit, danger = false) {
-  const d = $("dlg");
-  d.innerHTML = `<form><h2 class="text-lg font-semibold">${title}</h2>${fields}
-    <p class="err text-sm text-bad min-h-[20px] mt-3" role="alert"></p>
-    <div class="flex justify-end gap-2 mt-2"><button type="button" data-x class="btn g">Cancel</button><button class="btn ${danger ? "d" : ""}">${okLabel}</button></div></form>`;
-  d.showModal();
-  d.querySelector("[data-x]").onclick = () => d.close();
-  d.querySelector("form").onsubmit = async (e) => {
-    e.preventDefault();
-    const msg = await onSubmit(Object.fromEntries(new FormData(e.target)));
-    if (msg) d.querySelector(".err").textContent = msg;
-    else d.close();
-  };
-}
-const field = (id, label, input) =>
-  `<div class="mt-4"><label for="${id}">${label}</label>${input}</div>`;
-
 $("add").onclick = () =>
   dialog(
     "Add account",
-    field(
-      "f_u",
+    input(
+      "username",
       "Username",
-      '<input id="f_u" name="username" class="inp w-full" autocapitalize="none" autofocus required>',
+      "",
+      'autocapitalize="none" autofocus required',
     ) +
-      field(
-        "f_n",
-        "Full name",
-        '<input id="f_n" name="full_name" class="inp w-full" required>',
-      ) +
-      field(
-        "f_r",
+      input("full_name", "Full name", "", "required") +
+      select(
+        "role",
         "Role",
-        `<select id="f_r" name="role" class="inp w-full">${ROLES.map((r) => `<option value="${r}">${cap(r)}</option>`).join("")}</select>`,
+        ROLES.map((r) => [r, cap(r)]),
       ) +
-      field(
-        "f_p",
+      input(
+        "password",
         "Password",
-        '<input id="f_p" name="password" type="password" class="inp w-full" minlength="8" autocomplete="new-password" required>',
+        "",
+        'type="password" minlength="8" autocomplete="new-password" required',
       ),
     "Add account",
     async (v) => {
@@ -124,10 +82,11 @@ $("rows").addEventListener("click", (e) => {
     dialog(
       "Reset password",
       `<p class="text-mut text-sm mt-1">Set a new password for ${esc(u.username)}.</p>` +
-        field(
-          "f_p",
+        input(
+          "password",
           "New password",
-          '<input id="f_p" name="password" type="password" class="inp w-full" minlength="8" autocomplete="new-password" autofocus required>',
+          "",
+          'type="password" minlength="8" autocomplete="new-password" autofocus required',
         ),
       "Reset password",
       async (v) => {

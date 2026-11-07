@@ -43,6 +43,7 @@
             <option>Transferred</option>
             <option>Dropped</option>
           </select>
+          <button id="add" class="btn hidden ml-auto">Add student</button>
         </div>
         <p id="count" class="text-sm text-mut mb-2">&nbsp;</p>
         <div class="tblwrap">
@@ -56,6 +57,7 @@
                 <th>Standing</th>
                 <th>Status</th>
                 <th>Email</th>
+                <th id="act" class="hidden">Actions</th>
               </tr>
             </thead>
             <tbody id="rows"></tbody>
@@ -63,6 +65,7 @@
         </div>
       </div>
     </main>
+    <dialog id="dlg"></dialog>
 
     <script src="assets/js/common.js"></script>
     <script src="assets/js/layout.js"></script>

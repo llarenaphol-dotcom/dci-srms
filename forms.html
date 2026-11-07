@@ -19,10 +19,13 @@
       data-sub="Dropping, leave of absence and scholarship forms"
     >
       <div class="panel flex-1">
-        <div id="tabs" class="flex gap-6 border-b border-line mb-4 text-sm">
-          <button data-type="drop" class="pb-2">Dropping</button>
-          <button data-type="loa" class="pb-2">Leave of absence</button>
-          <button data-type="scholarship" class="pb-2">Scholarship</button>
+        <div class="flex items-end gap-4 border-b border-line mb-4">
+          <div id="tabs" class="flex gap-6 text-sm">
+            <button data-type="drop" class="pb-2">Dropping</button>
+            <button data-type="loa" class="pb-2">Leave of absence</button>
+            <button data-type="scholarship" class="pb-2">Scholarship</button>
+          </div>
+          <button id="add" class="btn s hidden ml-auto mb-2">New form</button>
         </div>
         <section
           id="subjects"
@@ -36,6 +39,7 @@
         </div>
       </div>
     </main>
+    <dialog id="dlg"></dialog>
 
     <script src="assets/js/common.js"></script>
     <script src="assets/js/layout.js"></script>

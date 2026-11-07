@@ -1,4 +1,8 @@
 const $ = (id) => document.getElementById(id);
+let type = "drop",
+  staff = false, // only staff can add / edit / delete (the api checks this too)
+  forms = [],
+  courses = []; // [{id, name, n}] from the drop tab, fills the Subject dropdown
 
 // [field, heading] per tab. details = reason (drop), term and reason (loa), scholarship name.
 const COLS = {
@@ -33,25 +37,26 @@ const cell = (f, k) =>
       ? tag(f.status)
       : esc(f[k]);
 
-function subjects(rows) {
-  const max = Math.max(1, ...rows.map((r) => r[1]));
+function subjects() {
+  const max = Math.max(1, ...courses.map((c) => c.n));
   $("subjects").innerHTML =
     '<h2 class="text-sm font-medium mb-3">Dropping forms per subject</h2>' +
-    rows
+    courses
       .map(
-        ([s, n]) =>
+        (c) =>
           `<div class="grid grid-cols-[minmax(120px,220px)_1fr_2rem] items-center gap-3 text-sm mb-1.5">
-       <span>${esc(s)}</span>
-       <span class="h-2 rounded bg-tint"><i class="block h-2 rounded bg-pri" style="width:${(n / max) * 100}%"></i></span>
-       <b class="text-right">${n}</b></div>`,
+       <span>${esc(c.name)}</span>
+       <span class="h-2 rounded bg-tint"><i class="block h-2 rounded bg-pri" style="width:${(c.n / max) * 100}%"></i></span>
+       <b class="text-right">${c.n}</b></div>`,
       )
       .join("");
 }
 
-async function show(type) {
+async function show() {
   const cols = COLS[type];
+  const span = cols.length + (staff ? 1 : 0);
   const msg = (text, cls) =>
-    `<tr><td colspan="${cols.length}" class="text-center ${cls}">${esc(text)}</td></tr>`;
+    `<tr><td colspan="${span}" class="text-center ${cls}">${esc(text)}</td></tr>`;
   document.querySelectorAll("#tabs button").forEach((b) => {
     const on = b.dataset.type === type;
     b.className =
@@ -61,17 +66,27 @@ async function show(type) {
   });
   $("subjects").classList.toggle("hidden", type !== "drop");
   $("head").innerHTML =
-    "<tr>" + cols.map((c) => `<th>${c[1]}</th>`).join("") + "</tr>";
+    "<tr>" +
+    cols.map((c) => `<th>${c[1]}</th>`).join("") +
+    (staff ? "<th>Actions</th>" : "") +
+    "</tr>";
   $("rows").innerHTML = msg("Loading…", "text-mut");
   try {
     const d = await api("api/forms.php?type=" + type);
-    if (d.subjects) subjects(d.subjects);
+    forms = d.forms;
+    if (d.subjects) {
+      courses = d.subjects;
+      subjects();
+    }
     $("rows").innerHTML =
-      d.forms
+      forms
         .map(
           (f) =>
             "<tr>" +
             cols.map(([k]) => `<td>${cell(f, k)}</td>`).join("") +
+            (staff
+              ? `<td><div class="flex gap-2"><button class="btn g s" data-edit="${f.form_id}">Edit</button><button class="btn d s" data-del="${f.form_id}">Delete</button></div></td>`
+              : "") +
             "</tr>",
         )
         .join("") || msg("No forms yet.", "text-mut");
@@ -80,8 +95,101 @@ async function show(type) {
   }
 }
 
-$("tabs").addEventListener(
-  "click",
-  (e) => e.target.dataset.type && show(e.target.dataset.type),
-);
-show("drop");
+// Add (f = {}) or edit (f = a form row). The fields depend on the current tab.
+function formDialog(f = {}) {
+  const editing = !!f.form_id;
+  const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local time
+  const fields = {
+    drop:
+      select(
+        "course_id",
+        "Subject",
+        courses.map((c) => [c.id, c.name]),
+        f.course_id,
+      ) + input("details", "Reason", f.details, "required"),
+    loa: input(
+      "details",
+      "Term and reason",
+      f.details,
+      'placeholder="1st Sem 26-27: Medical" required',
+    ),
+    scholarship:
+      input("details", "Scholarship", f.details, "required") +
+      input(
+        "amount",
+        "Amount (₱)",
+        f.amount,
+        'type="number" min="1" step="0.01" required',
+      ),
+  };
+  dialog(
+    editing ? "Edit form" : "New form",
+    input(
+      "student_no",
+      "Student no.",
+      f.student_no,
+      'placeholder="2024-0001" required',
+    ) +
+      fields[type] +
+      input(
+        "date_filed",
+        "Date filed",
+        f.date_filed || today,
+        'type="date" required',
+      ) +
+      select(
+        "status",
+        "Status",
+        ["Pending", "Approved", "Rejected"].map((v) => [v, v]),
+        f.status,
+      ),
+    editing ? "Save changes" : "Add form",
+    async (v) => {
+      const j = await send("api/forms.php", editing ? "PUT" : "POST", {
+        ...v,
+        type,
+        form_id: f.form_id,
+      });
+      if (!j.success) return j.message;
+      toast(j.message);
+      show();
+      return "";
+    },
+  );
+}
+
+$("add").onclick = () => formDialog();
+
+$("rows").addEventListener("click", (e) => {
+  const { edit, del } = e.target.dataset;
+  const f = forms.find((x) => x.form_id == (edit || del));
+  if (edit) formDialog(f);
+  if (del)
+    dialog(
+      "Delete form",
+      `<p class="text-mut text-sm mt-2">Delete this form for ${esc(f.name)}? This cannot be undone.</p>`,
+      "Delete",
+      async () => {
+        const j = await send("api/forms.php?id=" + del, "DELETE");
+        if (!j.success) return j.message;
+        toast(j.message);
+        show();
+        return "";
+      },
+      true,
+    );
+});
+
+$("tabs").addEventListener("click", (e) => {
+  if (!e.target.dataset.type) return;
+  type = e.target.dataset.type;
+  show();
+});
+
+api("api/me.php")
+  .then((u) => (staff = u.role === "staff"))
+  .catch(() => {}) // layout.js already sends signed-out users to login
+  .then(() => {
+    $("add").classList.toggle("hidden", !staff);
+    show();
+  });
