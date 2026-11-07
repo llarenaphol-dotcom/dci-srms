@@ -63,6 +63,30 @@
             <tbody id="rows"></tbody>
           </table>
         </div>
+
+        <!-- Pagination Bar with Arrows, Sliding Numbers, and Page Jump Input -->
+        <div id="pagination-bar" class="flex flex-wrap items-center justify-between gap-2 mt-4 px-2">
+          <span id="page-info" class="text-sm text-mut"></span>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5" id="pagination-buttons">
+              <button id="prev-page" class="btn sm px-3" disabled aria-label="Previous Page">&larr;</button>
+              <div id="page-numbers" class="flex gap-1"></div>
+              <button id="next-page" class="btn sm px-3" disabled aria-label="Next Page">&rarr;</button>
+            </div>
+            <!-- Type Page Number Jump Input -->
+            <div class="flex items-center gap-1 text-sm text-mut ml-2">
+              <span>Go to:</span>
+              <input
+                id="jump-page-input"
+                type="number"
+                min="1"
+                class="inp sm w-18 text-center"
+                placeholder="Page"
+                aria-label="Jump to page"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
     <dialog id="dlg"></dialog>
