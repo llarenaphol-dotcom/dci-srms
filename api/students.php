@@ -21,17 +21,44 @@ if ($method === 'GET') {
         }
     }
 
-    // shortcut: no pagination, fine for a few hundred students, add LIMIT/OFFSET if it grows
+    $whereSql = $where ? " WHERE " . implode(" AND ", $where) : "";
+
+    // 1. Get the total count of matching records for pagination
+    $countSql = "SELECT COUNT(*) FROM students s JOIN programs p ON p.program_id = s.program_id" . $whereSql;
+    $countSt = $pdo->prepare($countSql);
+    $countSt->execute($args);
+    $total = (int) $countSt->fetchColumn();
+
+    // 2. Pagination parameters
+    $page = max(1, (int) ($_GET['page'] ?? 1));
+    $limit = max(1, min(100, (int) ($_GET['limit'] ?? 5)));
+    $totalPages = max(1, ceil($total / $limit));
+    $offset = ($page - 1) * $limit;
+
+    // 3. Fetch the specific page slice using LIMIT and OFFSET
     $sql = "SELECT s.student_id, s.student_no, s.first_name, s.last_name, CONCAT(s.last_name, ', ', s.first_name) AS name,
                    s.email, s.program_id, p.program_code AS program, s.year_level, s.standing, s.status
             FROM students s JOIN programs p ON p.program_id = s.program_id"
-         . ($where ? " WHERE " . implode(" AND ", $where) : "")
-         . " ORDER BY s.last_name, s.first_name";
+         . $whereSql
+         . " ORDER BY s.last_name, s.first_name LIMIT ? OFFSET ?";
+    
     $st = $pdo->prepare($sql);
-    $st->execute($args);
+    
+    // Safely bind all filter arguments followed by limit and offset as integers
+    $paramIndex = 1;
+    foreach ($args as $arg) {
+        $st->bindValue($paramIndex++, $arg);
+    }
+    $st->bindValue($paramIndex++, $limit, PDO::PARAM_INT);
+    $st->bindValue($paramIndex++, $offset, PDO::PARAM_INT);
+    
+    $st->execute();
 
     json_out(['success' => true, 'message' => '', 'data' => [
         'students' => $st->fetchAll(),
+        'total' => $total,
+        'totalPages' => $totalPages,
+        'currentPage' => $page,
         // options for the program filter (standing/status options are fixed, see students.html)
         'programs' => $pdo->query("SELECT program_id AS id, program_code AS code FROM programs ORDER BY program_code")->fetchAll(),
     ]]);
@@ -60,7 +87,7 @@ if ($method === 'POST' || $method === 'PUT') {
     $stand = $in['standing'] ?? '';
     $stat  = $in['status'] ?? '';
 
-    if (!preg_match('/^\d{4}-\d{4}$/', $no))                         $fail('Student no. must look like 2024-0001.');
+    if (!preg_match('/^\d{4}-\d{4}$/', $no))                                $fail('Student no. must look like 2024-0001.');
     if ($first === '' || mb_strlen($first) > 50)                     $fail('Enter the first name.');
     if ($last === '' || mb_strlen($last) > 50)                       $fail('Enter the last name.');
     if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $fail('Enter a valid email or leave it blank.');

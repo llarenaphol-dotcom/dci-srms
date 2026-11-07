@@ -3,22 +3,41 @@ const filters = ["q", "program", "year", "standing", "status"];
 let timer,
   staff = false, // only staff can add / edit / delete (the api checks this too)
   students = [],
-  programs = [];
+  programs = [],
+  currentPage = 1,
+  limit = 10; // Number of items per page
 
-async function load() {
+async function load(targetPage = 1) {
+  currentPage = targetPage;
   const cols = staff ? 8 : 7;
   const msg = (text, cls) =>
     `<tr><td colspan="${cols}" class="text-center ${cls}">${esc(text)}</td></tr>`;
   $("rows").innerHTML = msg("Loading…", "text-mut");
+
   const params = new URLSearchParams(
     filters.map((f) => [f, $(f).value.trim()]),
   );
+  params.set("page", currentPage);
+  params.set("limit", limit);
+
   try {
-    const d = await api("api/students.php?" + params);
+    const res = await api("api/students.php?" + params);
+    const d = res.data || res;
     students = d.students;
     programs = d.programs;
+    
+    const totalCount = d.total !== undefined ? d.total : students.length;
+    const totalPages = d.totalPages !== undefined ? d.totalPages : Math.ceil(totalCount / limit) || 1;
+
+    // Ensure currentPage doesn't exceed totalPages after filters change
+    if (currentPage > totalPages && totalPages > 0) {
+      currentPage = totalPages;
+      return load(currentPage);
+    }
+
     $("count").textContent =
-      `${students.length} student${students.length === 1 ? "" : "s"}`;
+      `${totalCount} student${totalCount === 1 ? "" : "s"} found`;
+
     $("rows").innerHTML =
       students
         .map(
@@ -34,13 +53,94 @@ async function load() {
     </tr>`,
         )
         .join("") || msg("No students found.", "text-mut");
+
     if ($("program").options.length === 1)
       programs.forEach((p) => $("program").add(new Option(p.code, p.id)));
+
+    // Update Pagination UI Info & Buttons
+    $("page-info").textContent = `Page ${currentPage} of ${totalPages || 1}`;
+    $("prev-page").disabled = currentPage <= 1;
+    $("next-page").disabled = currentPage >= totalPages;
+
+    // Update jump input placeholder or value indicator
+    $("jump-page-input").max = totalPages;
+
+    // Render progressive sliding page numbers (e.g., 1-4 sliding forward, then ellipses)
+    renderPageNumbers(totalPages, currentPage);
+
   } catch (e) {
     $("count").textContent = "";
     $("rows").innerHTML = msg(e.message, "text-bad");
+    $("page-info").textContent = "";
+    $("prev-page").disabled = true;
+    $("next-page").disabled = true;
+    $("page-numbers").innerHTML = "";
   }
 }
+
+// Progressive sliding pagination builder (1-4 progressing forward with ellipses)
+function renderPageNumbers(totalPages, current) {
+  const container = $("page-numbers");
+  container.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  let pages = [];
+
+  if (totalPages <= 5) {
+    // Show all if total pages are 5 or fewer
+    pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  } else {
+    // Progressive sliding logic: 
+    // If we are in the early pages, show 1 to 4, then '...', then last page.
+    // As 'current' increases, the window shifts forward.
+    if (current <= 3) {
+      pages = [1, 2, 3, 4, '...', totalPages];
+    } else if (current >= totalPages - 2) {
+      pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+      pages = [1, '...', current - 1, current, current + 1, '...', totalPages];
+    }
+  }
+
+  pages.forEach(p => {
+    if (p === '...') {
+      const span = document.createElement("span");
+      span.className = "px-2 text-mut text-sm self-center";
+      span.textContent = "...";
+      container.appendChild(span);
+    } else {
+      const btn = document.createElement("button");
+      btn.className = `btn sm ${p === current ? 'bg-primary text-white font-semibold' : 'g'}`;
+      btn.textContent = p;
+      btn.onclick = () => load(p);
+      container.appendChild(btn);
+    }
+  });
+}
+
+// Arrow Button Handlers
+$("prev-page").onclick = () => {
+  if (currentPage > 1) load(currentPage - 1);
+};
+
+$("next-page").onclick = () => {
+  load(currentPage + 1);
+};
+
+// Jump to specific page via typing input (triggers on Enter key)
+$("jump-page-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const target = parseInt(e.target.value);
+    const max = parseInt(e.target.max) || 1;
+    if (!isNaN(target) && target >= 1 && target <= max) {
+      load(target);
+      e.target.value = ""; // Clear input after jump
+    } else {
+      toast(`Please enter a page number between 1 and ${max}`);
+    }
+  }
+});
 
 // Add (s = {}) or edit (s = a student row)
 function studentForm(s = {}) {
@@ -91,7 +191,7 @@ function studentForm(s = {}) {
       });
       if (!j.success) return j.message;
       toast(j.message);
-      load();
+      load(currentPage); // Stay on current page after modification
       return "";
     },
   );
@@ -112,18 +212,20 @@ $("rows").addEventListener("click", (e) => {
         const j = await send("api/students.php?id=" + del, "DELETE");
         if (!j.success) return j.message;
         toast(j.message);
-        load();
+        load(currentPage);
         return "";
       },
       true,
     );
 });
 
+// Reset back to page 1 whenever search query inputs or filter selects change
 $("q").addEventListener("input", () => {
   clearTimeout(timer);
-  timer = setTimeout(load, 250);
+  timer = setTimeout(() => load(1), 250);
 });
-filters.slice(1).forEach((f) => $(f).addEventListener("change", load));
+
+filters.slice(1).forEach((f) => $(f).addEventListener("change", () => load(1)));
 
 api("api/me.php")
   .then((u) => (staff = u.role === "staff"))
@@ -131,5 +233,5 @@ api("api/me.php")
   .then(() => {
     $("add").classList.toggle("hidden", !staff);
     $("act").classList.toggle("hidden", !staff);
-    load();
+    load(1);
   });
