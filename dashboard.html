@@ -1,60 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<title>Dashboard · DCI SRMS</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="assets/js/tailwind-config.js"></script>
-<link rel="stylesheet" href="assets/css/app.css">
-</head>
-<body style="visibility:hidden">
-<main id="content" data-title="Dashboard" data-sub="Student overview">
-  <div class="panel flex-1">
-    <p id="err" class="hidden text-sm text-red-700 mb-4"></p>
+  <head>
+    <title>Dashboard – SRMS</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body style="visibility: hidden">
+    <main id="content" data-title="Dashboard" data-sub="Student overview">
+      <div class="panel flex-1">
+        <p id="err" class="hidden text-sm text-bad mb-4"></p>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="text-sm text-gray-500">Total students</div>
-        <div id="total" class="text-3xl font-semibold text-[#1E3A5F]">–</div>
-      </div>
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="text-sm text-gray-500">1st year students</div>
-        <div id="first" class="text-3xl font-semibold text-[#1E3A5F]">–</div>
-      </div>
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="text-sm text-gray-500">Irregular students</div>
-        <div id="irregular" class="text-3xl font-semibold text-[#1E3A5F]">–</div>
-      </div>
-      <div class="border border-gray-200 rounded-lg p-4">
-        <div class="text-sm text-gray-500">Pending forms</div>
-        <div id="pending" class="text-3xl font-semibold text-[#1E3A5F]">–</div>
-      </div>
-    </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="border border-line rounded-lg p-4">
+            <div class="text-sm text-mut">Total students</div>
+            <div id="total" class="text-3xl font-semibold text-pri">–</div>
+          </div>
+          <div class="border border-line rounded-lg p-4">
+            <div class="text-sm text-mut">1st year students</div>
+            <div id="first" class="text-3xl font-semibold text-pri">–</div>
+          </div>
+          <div class="border border-line rounded-lg p-4">
+            <div class="text-sm text-mut">Irregular students</div>
+            <div id="irregular" class="text-3xl font-semibold text-pri">–</div>
+          </div>
+          <div class="border border-line rounded-lg p-4">
+            <div class="text-sm text-mut">Pending forms</div>
+            <div id="pending" class="text-3xl font-semibold text-pri">–</div>
+          </div>
+        </div>
 
-    <div class="grid md:grid-cols-2 gap-4">
-      <section class="border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-medium mb-3">Students per year level</h2>
-        <div class="h-56"><canvas id="c-year"></canvas></div>
-      </section>
-      <section class="border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-medium mb-3">Enrollment status</h2>
-        <div class="h-56"><canvas id="c-status"></canvas></div>
-      </section>
-      <section class="border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-medium mb-3">Students per program</h2>
-        <div class="h-56"><canvas id="c-program"></canvas></div>
-      </section>
-      <section class="border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-medium mb-3">Form requests</h2>
-        <div class="h-56"><canvas id="c-forms"></canvas></div>
-      </section>
-    </div>
-  </div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="assets/js/layout.js"></script>
-<script src="assets/js/dashboard.js"></script>
-</body>
+        <div class="grid md:grid-cols-2 gap-4">
+          <section class="border border-line rounded-lg p-4">
+            <h2 class="text-sm font-medium mb-3">Students per year level</h2>
+            <div class="h-56"><canvas id="c-year"></canvas></div>
+          </section>
+          <section class="border border-line rounded-lg p-4">
+            <h2 class="text-sm font-medium mb-3">Enrollment status</h2>
+            <div class="h-56"><canvas id="c-status"></canvas></div>
+          </section>
+          <section class="border border-line rounded-lg p-4">
+            <h2 class="text-sm font-medium mb-3">Students per program</h2>
+            <div class="h-56"><canvas id="c-program"></canvas></div>
+          </section>
+          <section class="border border-line rounded-lg p-4">
+            <h2 class="text-sm font-medium mb-3">Form requests</h2>
+            <div class="h-56"><canvas id="c-forms"></canvas></div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+  </body>
 </html>

@@ -1,32 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<title>Forms · DCI SRMS</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="assets/js/tailwind-config.js"></script>
-<link rel="stylesheet" href="assets/css/app.css">
-</head>
-<body style="visibility:hidden">
-<main id="content" data-title="Forms" data-sub="Dropping, leave of absence and scholarship forms">
-  <div class="panel flex-1">
-    <div id="tabs" class="flex gap-6 border-b border-gray-200 mb-4 text-sm">
-      <button data-type="drop" class="pb-2">Dropping</button>
-      <button data-type="loa" class="pb-2">Leave of absence</button>
-      <button data-type="scholarship" class="pb-2">Scholarship</button>
-    </div>
-    <section id="subjects" class="hidden border border-gray-200 rounded-lg p-4 mb-4"></section>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left">
-        <thead id="head" class="text-gray-500 border-b border-gray-200"></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </div>
-</main>
-<script src="assets/js/layout.js"></script>
-<script src="assets/js/forms.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Forms – SRMS</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body style="visibility: hidden">
+    <main
+      id="content"
+      data-title="Forms"
+      data-sub="Dropping, leave of absence and scholarship forms"
+    >
+      <div class="panel flex-1">
+        <div id="tabs" class="flex gap-6 border-b border-line mb-4 text-sm">
+          <button data-type="drop" class="pb-2">Dropping</button>
+          <button data-type="loa" class="pb-2">Leave of absence</button>
+          <button data-type="scholarship" class="pb-2">Scholarship</button>
+        </div>
+        <section
+          id="subjects"
+          class="hidden border border-line rounded-lg p-4 mb-4"
+        ></section>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead id="head"></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/forms.js"></script>
+  </body>
 </html>

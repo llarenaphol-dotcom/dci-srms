@@ -4,18 +4,13 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/db.php';
 require_role(['staff', 'dean']);
 
-header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed', 'data' => null]);
-    exit;
+    json_out(['success' => false, 'message' => 'Method not allowed.'], 405);
 }
 
 $type = $_GET['type'] ?? '';
 if (!in_array($type, ['drop', 'loa', 'scholarship'], true)) {
-    http_response_code(422);
-    echo json_encode(['success' => false, 'message' => 'Invalid form type', 'data' => null]);
-    exit;
+    json_out(['success' => false, 'message' => 'Invalid form type.'], 422);
 }
 
 $st = $pdo->prepare("SELECT f.form_id, s.student_no, CONCAT(s.last_name, ', ', s.first_name) AS name,
@@ -26,7 +21,7 @@ $st = $pdo->prepare("SELECT f.form_id, s.student_no, CONCAT(s.last_name, ', ', s
                      LEFT JOIN courses c ON c.course_id = f.course_id
                      WHERE f.form_type = ? ORDER BY f.date_filed DESC, f.form_id DESC");
 $st->execute([$type]);
-$data = ['forms' => $st->fetchAll(PDO::FETCH_ASSOC)];
+$data = ['forms' => $st->fetchAll()];
 
 if ($type === 'drop') { // every course, including those with 0 drops
     $data['subjects'] = $pdo->query(
@@ -34,4 +29,4 @@ if ($type === 'drop') { // every course, including those with 0 drops
          FROM courses c LEFT JOIN forms f ON f.course_id = c.course_id AND f.form_type = 'drop'
          GROUP BY c.course_id ORDER BY c.course_code")->fetchAll(PDO::FETCH_NUM);
 }
-echo json_encode(['success' => true, 'message' => '', 'data' => $data]);
+json_out(['success' => true, 'message' => '', 'data' => $data]);

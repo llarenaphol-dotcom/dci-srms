@@ -7,8 +7,7 @@ require_role(['dean']);
 $one  = fn($sql) => (int)$pdo->query($sql)->fetchColumn();
 $rows = fn($sql) => $pdo->query($sql)->fetchAll(PDO::FETCH_NUM); // [[label, count], ...]
 
-header('Content-Type: application/json');
-echo json_encode(['success' => true, 'message' => '', 'data' => [
+json_out(['success' => true, 'message' => '', 'data' => [
     'total'      => $one("SELECT COUNT(*) FROM students"),
     'first_year' => $one("SELECT COUNT(*) FROM students WHERE year_level = 1"),
     'irregular'  => $one("SELECT COUNT(*) FROM students WHERE standing = 'Irregular'"),

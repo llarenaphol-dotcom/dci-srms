@@ -4,11 +4,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/db.php';
 require_role(['staff', 'dean']);
 
-header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed', 'data' => null]);
-    exit;
+    json_out(['success' => false, 'message' => 'Method not allowed.'], 405);
 }
 
 $where = [];
@@ -35,10 +32,8 @@ $sql = "SELECT s.student_id, s.student_no, CONCAT(s.last_name, ', ', s.first_nam
 $st = $pdo->prepare($sql);
 $st->execute($args);
 
-echo json_encode(['success' => true, 'message' => '', 'data' => [
-    'students'  => $st->fetchAll(PDO::FETCH_ASSOC),
-    // options for the filter bar
-    'programs'  => $pdo->query("SELECT program_id AS id, program_code AS code FROM programs ORDER BY program_code")->fetchAll(PDO::FETCH_ASSOC),
-    'standings' => $pdo->query("SELECT DISTINCT standing FROM students ORDER BY standing")->fetchAll(PDO::FETCH_COLUMN),
-    'statuses'  => $pdo->query("SELECT DISTINCT status FROM students ORDER BY status")->fetchAll(PDO::FETCH_COLUMN),
+json_out(['success' => true, 'message' => '', 'data' => [
+    'students'  => $st->fetchAll(),
+    // options for the program filter (standing/status options are fixed, see students.html)
+    'programs'  => $pdo->query("SELECT program_id AS id, program_code AS code FROM programs ORDER BY program_code")->fetchAll(),
 ]]);

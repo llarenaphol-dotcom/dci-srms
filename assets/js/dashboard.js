@@ -1,14 +1,11 @@
-(() => {
-const $ = s => document.querySelector(s);
-const api = async url => {
-  const r = await fetch(url);
-  const j = await r.json().catch(() => null);
-  if (!j || !j.success) throw new Error((j && j.message) || "Request failed");
-  return j.data;
-};
+const $ = (id) => document.getElementById(id);
 
 const NAVY = ["#1E3A5F", "#4F6D92", "#8FA6C2", "#C5D2E2"];
-const FORM = { drop: "Dropping", loa: "Leave of absence", scholarship: "Scholarship" };
+const FORM = {
+  drop: "Dropping",
+  loa: "Leave of absence",
+  scholarship: "Scholarship",
+};
 Chart.defaults.font.family = "Inter, sans-serif";
 
 function draw(id, type, rows, fmt = String) {
@@ -16,17 +13,26 @@ function draw(id, type, rows, fmt = String) {
   new Chart($(id), {
     type,
     data: {
-      labels: rows.map(r => fmt(r[0])),
-      datasets: [{
-        data: rows.map(r => r[1]),
-        backgroundColor: doughnut ? rows.map((_, i) => NAVY[i % NAVY.length]) : NAVY[0],
-        maxBarThickness: 48,
-      }],
+      labels: rows.map((r) => fmt(r[0])),
+      datasets: [
+        {
+          data: rows.map((r) => r[1]),
+          backgroundColor: doughnut
+            ? rows.map((_, i) => NAVY[i % NAVY.length])
+            : NAVY[0],
+          maxBarThickness: 48,
+        },
+      ],
     },
     options: {
       maintainAspectRatio: false,
       plugins: { legend: { display: doughnut, position: "bottom" } },
-      scales: doughnut ? {} : { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 } } },
+      scales: doughnut
+        ? {}
+        : {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+          },
     },
   });
 }
@@ -34,36 +40,51 @@ function draw(id, type, rows, fmt = String) {
 (async () => {
   try {
     const d = await api("api/stats.php");
-    $("#total").textContent = d.total;
-    $("#first").textContent = d.first_year;
-    $("#irregular").textContent = d.irregular;
-    $("#pending").textContent = d.pending;
+    $("total").textContent = d.total;
+    $("first").textContent = d.first_year;
+    $("irregular").textContent = d.irregular;
+    $("pending").textContent = d.pending;
 
     // year level, stacked by standing: d.year rows are [year, standing, count]
     const years = [1, 2, 3, 4];
-    const n = (y, s) => { const r = d.year.find(r => r[0] == y && r[1] === s); return r ? r[2] : 0; };
-    new Chart($("#c-year"), {
+    const n = (y, s) => {
+      const r = d.year.find((r) => r[0] == y && r[1] === s);
+      return r ? r[2] : 0;
+    };
+    new Chart($("c-year"), {
       type: "bar",
       data: {
-        labels: years.map(y => "Year " + y),
+        labels: years.map((y) => "Year " + y),
         datasets: [
-          { label: "Regular", data: years.map(y => n(y, "Regular")), backgroundColor: NAVY[0], maxBarThickness: 48 },
-          { label: "Irregular", data: years.map(y => n(y, "Irregular")), backgroundColor: NAVY[2], maxBarThickness: 48 },
+          {
+            label: "Regular",
+            data: years.map((y) => n(y, "Regular")),
+            backgroundColor: NAVY[0],
+            maxBarThickness: 48,
+          },
+          {
+            label: "Irregular",
+            data: years.map((y) => n(y, "Irregular")),
+            backgroundColor: NAVY[2],
+            maxBarThickness: 48,
+          },
         ],
       },
       options: {
         maintainAspectRatio: false,
         plugins: { legend: { position: "bottom" } },
-        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+        },
       },
     });
 
-    draw("#c-status", "doughnut", d.status);
-    draw("#c-program", "bar", d.program);
-    draw("#c-forms", "bar", d.forms, t => FORM[t] || t);
+    draw("c-status", "doughnut", d.status);
+    draw("c-program", "bar", d.program);
+    draw("c-forms", "bar", d.forms, (t) => FORM[t] || t);
   } catch (e) {
-    $("#err").textContent = e.message;
-    $("#err").classList.remove("hidden");
+    $("err").textContent = e.message;
+    $("err").classList.remove("hidden");
   }
-})();
 })();

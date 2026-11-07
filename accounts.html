@@ -1,32 +1,64 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Accounts – SRMS</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="assets/js/tailwind-config.js"></script>
-<link rel="stylesheet" href="assets/css/app.css">
-</head>
-<body style="visibility:hidden">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Accounts – SRMS</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body style="visibility: hidden">
+    <main
+      id="content"
+      data-title="Account Management"
+      data-sub="Add accounts, change roles, and reset passwords."
+    >
+      <div class="panel flex-1">
+        <div>
+          <button id="add" class="btn flex items-center gap-2">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add account
+          </button>
+        </div>
+        <div class="tblwrap mt-6">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <tr>
+                <td colspan="4" class="text-center text-mut">Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
 
-<main id="content" data-title="Account Management" data-sub="Add accounts, change roles, and reset passwords.">
-  <div class="panel flex-1">
-    <div>
-      <button id="add" class="btn flex items-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Add account
-      </button>
-    </div>
-    <div class="tblwrap mt-6">
-      <table class="tbl">
-        <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead>
-        <tbody id="rows"><tr><td colspan="4">Loading…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-</main>
-
-<dialog id="dlg"></dialog>
-<script src="assets/js/layout.js"></script>
-<script src="assets/js/accounts.js"></script>
-</body></html>
+    <dialog id="dlg"></dialog>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/accounts.js"></script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
- <?php
+<?php
 require_once __DIR__ . '/../includes/auth.php';
 
 // Every page calls this on load to learn who is signed in (and redirects if not)

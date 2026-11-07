@@ -1,40 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<title>Students · DCI SRMS</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="assets/js/tailwind-config.js"></script>
-<link rel="stylesheet" href="assets/css/app.css">
-</head>
-<body style="visibility:hidden">
-<main id="content" data-title="Students" data-sub="Student records">
-  <div class="panel flex-1">
-    <div class="flex flex-wrap gap-2 mb-4">
-      <input id="q" class="inp sm" placeholder="Search name or student no." aria-label="Search">
-      <select id="program" class="inp sm" aria-label="Program"><option value="">All programs</option></select>
-      <select id="year" class="inp sm" aria-label="Year level">
-        <option value="">All years</option>
-        <option value="1">Year 1</option><option value="2">Year 2</option>
-        <option value="3">Year 3</option><option value="4">Year 4</option>
-      </select>
-      <select id="standing" class="inp sm" aria-label="Standing"><option value="">All standings</option></select>
-      <select id="status" class="inp sm" aria-label="Status"><option value="">All statuses</option></select>
-    </div>
-    <p id="count" class="text-sm text-gray-500 mb-2">&nbsp;</p>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left">
-        <thead class="text-gray-500 border-b border-gray-200">
-          <tr><th class="py-2 pr-4 font-medium">Student no.</th><th class="pr-4 font-medium">Name</th><th class="pr-4 font-medium">Program</th><th class="pr-4 font-medium">Year</th><th class="pr-4 font-medium">Standing</th><th class="pr-4 font-medium">Status</th><th class="font-medium">Email</th></tr>
-        </thead>
-        <tbody id="rows"><tr><td colspan="7" class="py-8 text-center text-gray-500">Loading…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-</main>
-<script src="assets/js/layout.js"></script>
-<script src="assets/js/students.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Students – SRMS</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body style="visibility: hidden">
+    <main id="content" data-title="Students" data-sub="Student records">
+      <div class="panel flex-1">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <input
+            id="q"
+            class="inp sm"
+            placeholder="Search name or student no."
+            aria-label="Search"
+          />
+          <select id="program" class="inp sm" aria-label="Program">
+            <option value="">All programs</option>
+          </select>
+          <select id="year" class="inp sm" aria-label="Year level">
+            <option value="">All years</option>
+            <option value="1">Year 1</option>
+            <option value="2">Year 2</option>
+            <option value="3">Year 3</option>
+            <option value="4">Year 4</option>
+          </select>
+          <select id="standing" class="inp sm" aria-label="Standing">
+            <option value="">All standings</option>
+            <option>Regular</option>
+            <option>Irregular</option>
+          </select>
+          <select id="status" class="inp sm" aria-label="Status">
+            <option value="">All statuses</option>
+            <option>Active</option>
+            <option>Transferred</option>
+            <option>Dropped</option>
+          </select>
+        </div>
+        <p id="count" class="text-sm text-mut mb-2">&nbsp;</p>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Student no.</th>
+                <th>Name</th>
+                <th>Program</th>
+                <th>Year</th>
+                <th>Standing</th>
+                <th>Status</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/students.js"></script>
+  </body>
 </html>
