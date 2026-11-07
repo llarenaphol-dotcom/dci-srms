@@ -68,6 +68,7 @@ CREATE TABLE enrollments (
 CREATE TABLE forms (
     form_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
+    course_id INT NULL,
     form_type ENUM('drop','loa','scholarship') NOT NULL,
     details VARCHAR(255) NOT NULL,
     amount DECIMAL(10,2) DEFAULT NULL,
@@ -75,5 +76,8 @@ CREATE TABLE forms (
     status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
     CONSTRAINT fk_form_student FOREIGN KEY (student_id)
         REFERENCES students(student_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_form_course FOREIGN KEY (course_id)
+        REFERENCES courses(course_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
