@@ -160,6 +160,7 @@ These accounts are intended for course demonstration and local development.
 - Searches and filters students
 - Adds, updates, or removes student records
 - Views student request forms
+- Adds, edits, and deletes subjects (a subject used by any form cannot be deleted)
 
 ### Dean
 
@@ -236,8 +237,6 @@ The tables are in third normal form (3NF): every column holds one value and depe
 | `programs` | Degree programs |
 | `students` | Student records, linked to a program |
 | `courses` | Subjects |
-| `sections` | A course offered in a given academic year and semester |
-| `enrollments` | Which student is in which section, with grade |
 | `scholarships` | Scholarship names and their fixed amounts |
 | `forms` | Drop, leave of absence, and scholarship requests |
 

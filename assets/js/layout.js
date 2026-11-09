@@ -12,6 +12,7 @@
       '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
     cap: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>',
     file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M6.5 17A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20v-5"/>',
     chart: '<path d="M3 3v18h18"/><path d="M8 17V9M13 17V5M18 17v-6"/>',
     out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
   };
@@ -22,6 +23,7 @@
     staff: [
       ["students.html", "Students", "cap"],
       ["forms.html", "Forms", "file"],
+      ["subjects.html", "Subjects", "book"],
     ],
     dean: [
       ["dashboard.html", "Dashboard", "chart"],
@@ -49,12 +51,17 @@
     shell.className = "min-h-screen flex flex-col";
     shell.innerHTML = `
 <header class="topbar">
-  <div class="flex items-center gap-3 px-6 md:px-14 h-20">
-    <img src="assets/img/icon.svg" alt="SRMS logo" class="w-8 h-8 rounded-lg bg-white object-cover shadow-sm" />
-    <span class="font-bold text-lg">SRMS</span>
-    <span class="hidden sm:block h-8 w-px bg-white/20 mx-2"></span>
-    <span class="hidden sm:block text-sm">Student Record Management System</span>
-  </div>
+ <div class="flex items-center gap-3 px-6 md:px-14 h-20">
+        <img
+          src="assets/img/icon.svg"
+          alt="SRMS logo"
+          class="w-16 h-12 rounded-lg bg-white object-cover shadow-sm"
+        />
+        <span class="min-w-0 text-xs sm:text-sm leading-tight"
+          >Student Record Management System</span
+        >
+      </div>
+
 </header>
 
 <div class="flex-1 w-full max-w-[1440px] mx-auto px-6 md:px-14 py-10 flex flex-col md:flex-row gap-6">

@@ -2,7 +2,7 @@ const $ = (id) => document.getElementById(id);
 let type = "drop",
   staff = false, // only staff can add / edit / delete (the api checks this too)
   forms = [],
-  courses = [], // [{id, name, n}] from the drop tab, fills the Subject dropdown
+  courses = [], // [{id, name, units, n}] from the drop tab, fills the Subject dropdown
   scholarships = []; // [{id, name, amount}] from the scholarship tab
 
 // [field, heading] per tab. details is always the reason.
@@ -11,6 +11,7 @@ const COLS = {
     ["student_no", "Student no."],
     ["name", "Student"],
     ["subject", "Subject"],
+    ["units", "Units"],
     ["details", "Reason"],
     ["date_filed", "Filed"],
     ["status", "Status"],
@@ -108,9 +109,13 @@ function formDialog(f = {}) {
       select(
         "course_id",
         "Subject",
-        courses.map((c) => [c.id, c.name]),
+        courses
+          .map((c) => [c.id, `${c.name} (${c.units} units)`])
+          .concat([["new", "+ New subject…"]]),
         f.course_id,
-      ) + input("details", "Reason", f.details, "required"),
+      ) +
+      `<div id="new_fields" class="hidden">${input("new_code", "Subject code", "", 'maxlength="50" placeholder="CC103"')}${input("new_title", "Subject title", "", 'maxlength="100"')}${input("new_units", "Units", "", 'type="number" min="1" max="10"')}</div>` +
+      input("details", "Reason", f.details, "required"),
     loa:
       input(
         "academic_year",
@@ -137,7 +142,7 @@ function formDialog(f = {}) {
           .concat([["new", "+ New scholarship…"]]),
         f.scholarship_id,
       ) +
-      `<div id="new_schol" class="hidden">${input("new_name", "New scholarship name", "", 'maxlength="100"')}${input("new_amount", "Amount (₱)", "", 'type="number" min="1" step="0.01"')}</div>`,
+      `<div id="new_fields" class="hidden">${input("new_name", "New scholarship name", "", 'maxlength="100"')}${input("new_amount", "Amount (₱)", "", 'type="number" min="1" step="0.01"')}</div>`,
   };
   dialog(
     editing ? "Edit form" : "New form",
@@ -173,13 +178,15 @@ function formDialog(f = {}) {
       return "";
     },
   );
-  // show the name / amount fields only when "+ New scholarship…" is picked
-  const pick = $("f_scholarship_id");
+  // show the new subject / scholarship fields only when "+ New …" is picked
+  const pick = $("f_course_id") || $("f_scholarship_id");
   if (pick)
     (pick.onchange = () => {
       const on = pick.value === "new";
-      $("new_schol").classList.toggle("hidden", !on);
-      $("f_new_name").required = $("f_new_amount").required = on;
+      $("new_fields").classList.toggle("hidden", !on);
+      $("new_fields")
+        .querySelectorAll("input")
+        .forEach((i) => (i.required = on));
     })();
 }
 

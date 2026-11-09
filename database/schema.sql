@@ -6,8 +6,7 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    role ENUM('admin','staff','dean') NOT NULL,
-    is_active TINYINT(1) NOT NULL DEFAULT 1
+    role ENUM('admin','staff','dean') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE programs (
@@ -36,33 +35,6 @@ CREATE TABLE students (
     status ENUM('Active','Transferred','Dropped') NOT NULL DEFAULT 'Active',
     CONSTRAINT fk_student_program FOREIGN KEY (program_id)
         REFERENCES programs(program_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE sections (
-    section_id INT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    academic_year VARCHAR(20) NOT NULL,
-    semester VARCHAR(20) NOT NULL,
-    section_name VARCHAR(50) NOT NULL,
-    UNIQUE (course_id, academic_year, semester, section_name),
-    CONSTRAINT fk_section_course FOREIGN KEY (course_id)
-        REFERENCES courses(course_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE enrollments (
-    enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL,
-    section_id INT NOT NULL,
-    grade DECIMAL(4,2) DEFAULT NULL,
-    enrollment_status ENUM('Enrolled','Dropped','Completed') NOT NULL DEFAULT 'Enrolled',
-    UNIQUE (student_id, section_id),
-    CONSTRAINT fk_enrollment_student FOREIGN KEY (student_id)
-        REFERENCES students(student_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_enrollment_section FOREIGN KEY (section_id)
-        REFERENCES sections(section_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

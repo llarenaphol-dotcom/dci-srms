@@ -11,8 +11,8 @@ $type = $method === 'GET' ? ($_GET['type'] ?? '') : ($in['type'] ?? '');
 if ($method !== 'DELETE' && !in_array($type, ['drop', 'loa', 'scholarship'], true)) $fail('Invalid form type.');
 
 if ($method === 'GET') {
-    $st = $pdo->prepare("SELECT f.form_id, s.student_no, CONCAT(s.last_name, ', ', s.first_name) AS name,
-                                f.course_id, CONCAT(c.course_code, ' ', c.course_title) AS subject,
+    $st = $pdo->prepare("SELECT f.form_id, s.student_no, CONCAT(s.last_name, ', ', s.first_name, IFNULL(CONCAT(' ', s.middle_name), '')) AS name,
+                                f.course_id, CONCAT(c.course_code, ' ', c.course_title) AS subject, c.units,
                                 f.scholarship_id, sc.name AS scholarship, sc.amount,
                                 f.academic_year, f.semester, f.details, f.date_filed, f.status
                          FROM forms f
@@ -25,7 +25,7 @@ if ($method === 'GET') {
 
     if ($type === 'drop') { // every course with its drop count (also fills the Subject dropdown)
         $data['subjects'] = $pdo->query(
-            "SELECT c.course_id AS id, CONCAT(c.course_code, ' ', c.course_title) AS name, COUNT(f.form_id) AS n
+            "SELECT c.course_id AS id, CONCAT(c.course_code, ' ', c.course_title) AS name, c.units, COUNT(f.form_id) AS n
              FROM courses c LEFT JOIN forms f ON f.course_id = c.course_id AND f.form_type = 'drop'
              GROUP BY c.course_id ORDER BY c.course_code")->fetchAll();
     }
@@ -49,7 +49,12 @@ if ($method === 'POST' || $method === 'PUT') {
     $status   = $in['status'] ?? '';
     $course   = $type === 'drop' ? (int) ($in['course_id'] ?? 0) : null;
     $schol    = $type === 'scholarship' ? (int) ($in['scholarship_id'] ?? 0) : null;
-    $newSchol = $type === 'scholarship' && ($in['scholarship_id'] ?? '') === 'new'; // staff typed a new one in the dialog
+    // "new" = staff typed a new subject / scholarship in the dialog
+    $newCourse = $type === 'drop' && ($in['course_id'] ?? '') === 'new';
+    $newCode   = trim($in['new_code'] ?? '');
+    $newTitle  = trim($in['new_title'] ?? '');
+    $newUnits  = (int) ($in['new_units'] ?? 0);
+    $newSchol = $type === 'scholarship' && ($in['scholarship_id'] ?? '') === 'new';
     $newName  = trim($in['new_name'] ?? '');
     $newAmt   = (float) ($in['new_amount'] ?? 0);
     $year     = $type === 'loa' ? trim($in['academic_year'] ?? '') : null;
@@ -60,7 +65,10 @@ if ($method === 'POST' || $method === 'PUT') {
     $student = $st->fetchColumn();
 
     if (!$student)                                                $fail('No student has that student no.');
-    if ($type === 'drop' && !$course)                             $fail('Choose a subject.');
+    if ($newCourse && ($newCode === '' || mb_strlen($newCode) > 50)) $fail('Enter the new subject code.');
+    if ($newCourse && ($newTitle === '' || mb_strlen($newTitle) > 100)) $fail('Enter the new subject title.');
+    if ($newCourse && ($newUnits < 1 || $newUnits > 10))          $fail('Enter units from 1 to 10.');
+    if ($type === 'drop' && !$course && !$newCourse)              $fail('Choose a subject.');
     if ($newSchol && ($newName === '' || mb_strlen($newName) > 100)) $fail('Enter the new scholarship name.');
     if ($newSchol && $newAmt <= 0)                                $fail('Enter an amount greater than 0.');
     if ($type === 'scholarship' && !$schol && !$newSchol)         $fail('Choose a scholarship.');
@@ -71,15 +79,18 @@ if ($method === 'POST' || $method === 'PUT') {
     if (!$d || $d->format('Y-m-d') !== $date)                    $fail('Choose a valid date.');
     if (!in_array($status, ['Pending', 'Approved', 'Rejected'], true)) $fail('Choose a status.');
 
-    if ($newSchol) { // created only after everything else is valid, so a failed form leaves no stray scholarship
+    // New subject / scholarship is created only after everything else is valid, so a failed form leaves nothing behind.
+    $create = function ($sql, $args, $what) use ($pdo, $fail) {
         try {
-            $pdo->prepare('INSERT INTO scholarships (name, amount) VALUES (?, ?)')->execute([$newName, $newAmt]);
+            $pdo->prepare($sql)->execute($args);
         } catch (PDOException $e) {
-            if ($e->errorInfo[1] === 1062) $fail('That scholarship already exists. Choose it from the list.');
+            if ($e->errorInfo[1] === 1062) $fail("That $what already exists. Choose it from the list.");
             throw $e;
         }
-        $schol = (int) $pdo->lastInsertId();
-    }
+        return (int) $pdo->lastInsertId();
+    };
+    if ($newCourse) $course = $create('INSERT INTO courses (course_code, course_title, units) VALUES (?, ?, ?)', [$newCode, $newTitle, $newUnits], 'subject');
+    if ($newSchol)  $schol  = $create('INSERT INTO scholarships (name, amount) VALUES (?, ?)', [$newName, $newAmt], 'scholarship');
 
     if ($method === 'POST') {
         $pdo->prepare('INSERT INTO forms (student_id, form_type, course_id, scholarship_id, academic_year, semester, details, date_filed, status)

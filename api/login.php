@@ -14,7 +14,7 @@ if ($username === '' || $password === '') {
     json_out(['success' => false, 'message' => 'Enter your username and password.'], 422);
 }
 
-$stmt = $pdo->prepare('SELECT user_id, username, password_hash, full_name, role FROM users WHERE username = ? AND is_active = 1');
+$stmt = $pdo->prepare('SELECT user_id, username, password_hash, full_name, role FROM users WHERE username = ?');
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 

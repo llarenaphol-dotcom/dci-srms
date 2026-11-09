@@ -155,6 +155,7 @@ function studentForm(s = {}) {
     ) +
       input("last_name", "Last name", s.last_name, "required") +
       input("first_name", "First name", s.first_name, "required") +
+      input("middle_name", "Middle name (optional)", s.middle_name, 'maxlength="50"') +
       input("email", "Email (optional)", s.email, 'type="email"') +
       select(
         "program_id",
