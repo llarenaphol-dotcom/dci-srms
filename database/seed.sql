@@ -1,4 +1,5 @@
 
+USE dci_srms;
 -- Demo data for dci_srms. Run after schema.sql.
 
 
@@ -12,10 +13,6 @@ INSERT INTO programs (program_code, program_name) VALUES
 ('BSCS', 'Bachelor of Science in Computer Science'),
 ('BSIT', 'Bachelor of Science in Information Technology');
 
-USE dci_srms;
--- Demo data. Select your database in phpMyAdmin first, then import. Safe to re-run: existing student numbers are skipped.
-
-INSERT IGNORE INTO programs (program_code, program_name) VALUES ('BSCS','BS Computer Science'),('BSIT','BS Information Technology');
 
 INSERT IGNORE INTO students (student_no, first_name, last_name, email, program_id, year_level, standing, status) VALUES
 ('2024-0001','Juan','Santos','juan.santos@example.com',(SELECT program_id FROM programs WHERE program_code='BSCS'),3,'Regular','Transferred'),

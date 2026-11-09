@@ -2,9 +2,10 @@ const $ = (id) => document.getElementById(id);
 let type = "drop",
   staff = false, // only staff can add / edit / delete (the api checks this too)
   forms = [],
-  courses = []; // [{id, name, n}] from the drop tab, fills the Subject dropdown
+  courses = [], // [{id, name, n}] from the drop tab, fills the Subject dropdown
+  scholarships = []; // [{id, name, amount}] from the scholarship tab
 
-// [field, heading] per tab. details = reason (drop), term and reason (loa), scholarship name.
+// [field, heading] per tab. details is always the reason.
 const COLS = {
   drop: [
     ["student_no", "Student no."],
@@ -17,14 +18,16 @@ const COLS = {
   loa: [
     ["student_no", "Student no."],
     ["name", "Student"],
-    ["details", "Term and reason"],
+    ["academic_year", "Academic year"],
+    ["semester", "Semester"],
+    ["details", "Reason"],
     ["date_filed", "Filed"],
     ["status", "Status"],
   ],
   scholarship: [
     ["student_no", "Student no."],
     ["name", "Student"],
-    ["details", "Scholarship"],
+    ["scholarship", "Scholarship"],
     ["amount", "Amount"],
     ["date_filed", "Filed"],
     ["status", "Status"],
@@ -78,6 +81,7 @@ async function show() {
       courses = d.subjects;
       subjects();
     }
+    if (d.scholarships) scholarships = d.scholarships;
     $("rows").innerHTML =
       forms
         .map(
@@ -107,20 +111,29 @@ function formDialog(f = {}) {
         courses.map((c) => [c.id, c.name]),
         f.course_id,
       ) + input("details", "Reason", f.details, "required"),
-    loa: input(
-      "details",
-      "Term and reason",
-      f.details,
-      'placeholder="1st Sem 26-27: Medical" required',
-    ),
-    scholarship:
-      input("details", "Scholarship", f.details, "required") +
+    loa:
       input(
-        "amount",
-        "Amount (₱)",
-        f.amount,
-        'type="number" min="1" step="0.01" required',
-      ),
+        "academic_year",
+        "Academic year",
+        f.academic_year,
+        'placeholder="2026-2027" pattern="\\d{4}-\\d{4}" required',
+      ) +
+      select(
+        "semester",
+        "Semester",
+        ["1st Semester", "2nd Semester", "Summer"].map((v) => [v, v]),
+        f.semester,
+      ) +
+      input("details", "Reason", f.details, "required"),
+    scholarship: select(
+      "scholarship_id",
+      "Scholarship",
+      scholarships.map((s) => [
+        s.id,
+        `${s.name} (₱${Number(s.amount).toLocaleString()})`,
+      ]),
+      f.scholarship_id,
+    ),
   };
   dialog(
     editing ? "Edit form" : "New form",

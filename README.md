@@ -42,7 +42,7 @@ dci-srms/
 |-- database/
 |   |-- schema.sql       Database tables
 |   |-- seed.sql         Demo accounts, programs, and students
-|   `-- seed-forms.sql   Sample courses and forms
+|   `-- seed-forms.sql   Sample courses, scholarships, and forms
 |-- includes/auth.php    Sessions and role authorization
 |-- *.html               User-facing pages
 `-- README.md            Setup instructions
@@ -209,12 +209,15 @@ For example, loading the dean dashboard:
 
 ## 12. Database Reset
 
-To reset the project database during testing:
+To reset the project database during testing (also required after schema changes):
 
-1. Open phpMyAdmin.
-2. Select `dci_srms`.
-3. Drop the database.
-4. Import the SQL files again:
+1. Open phpMyAdmin and run in the **SQL** tab:
+
+   ```sql
+   DROP DATABASE IF EXISTS dci_srms;
+   ```
+
+2. Import the SQL files again:
    - `database/schema.sql`
    - `database/seed.sql`
    - `database/seed-forms.sql`
@@ -223,7 +226,30 @@ Dropping the database removes all locally added accounts, students, and forms.
 
 ---
 
-## 13. Troubleshooting
+## 13. Database Design
+
+The tables are in third normal form (3NF): every column holds one value and depends only on its table's key.
+
+| Table | Holds |
+|---|---|
+| `users` | Login accounts and roles |
+| `programs` | Degree programs |
+| `students` | Student records, linked to a program |
+| `courses` | Subjects |
+| `sections` | A course offered in a given academic year and semester |
+| `enrollments` | Which student is in which section, with grade |
+| `scholarships` | Scholarship names and their fixed amounts |
+| `forms` | Drop, leave of absence, and scholarship requests |
+
+`forms` columns by type:
+
+- **drop**: `course_id`, `details` (reason)
+- **loa**: `academic_year`, `semester`, `details` (reason)
+- **scholarship**: `scholarship_id` (the amount comes from `scholarships`)
+
+---
+
+## 14. Troubleshooting
 
 ### Database connection failed
 
@@ -267,7 +293,7 @@ Open browser Developer Tools:
 
 ---
 
-## 14. Security Notes
+## 15. Security Notes
 
 This project is designed for course and local demonstration use.
 
@@ -287,7 +313,7 @@ Before real-world deployment, the project should additionally consider:
 
 ---
 
-## 15. Presentation Resources
+## 16. Presentation Resources
 
 - Project presentation guide: [PRESENTATION_MANUAL.md](PRESENTATION_MANUAL.md)
 - Database structure: [database/schema.sql](database/schema.sql)

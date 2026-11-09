@@ -45,6 +45,7 @@ CREATE TABLE sections (
     academic_year VARCHAR(20) NOT NULL,
     semester VARCHAR(20) NOT NULL,
     section_name VARCHAR(50) NOT NULL,
+    UNIQUE (course_id, academic_year, semester, section_name),
     CONSTRAINT fk_section_course FOREIGN KEY (course_id)
         REFERENCES courses(course_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
@@ -65,13 +66,24 @@ CREATE TABLE enrollments (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Each scholarship has one fixed amount, so the amount lives here, not on every form.
+CREATE TABLE scholarships (
+    scholarship_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    amount DECIMAL(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Columns per form_type: drop = course_id + details, loa = academic_year + semester + details,
+-- scholarship = scholarship_id. details only ever holds the reason.
 CREATE TABLE forms (
     form_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
-    course_id INT NULL,
     form_type ENUM('drop','loa','scholarship') NOT NULL,
-    details VARCHAR(255) NOT NULL,
-    amount DECIMAL(10,2) DEFAULT NULL,
+    course_id INT NULL,
+    scholarship_id INT NULL,
+    academic_year VARCHAR(20) NULL,
+    semester ENUM('1st Semester','2nd Semester','Summer') NULL,
+    details VARCHAR(255) NULL,
     date_filed DATE NOT NULL,
     status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
     CONSTRAINT fk_form_student FOREIGN KEY (student_id)
@@ -79,5 +91,8 @@ CREATE TABLE forms (
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_form_course FOREIGN KEY (course_id)
         REFERENCES courses(course_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_form_scholarship FOREIGN KEY (scholarship_id)
+        REFERENCES scholarships(scholarship_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
