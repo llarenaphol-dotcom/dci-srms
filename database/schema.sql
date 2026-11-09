@@ -82,7 +82,7 @@ CREATE TABLE forms (
     course_id INT NULL,
     scholarship_id INT NULL,
     academic_year VARCHAR(20) NULL,
-    semester ENUM('1st Semester','2nd Semester','Summer') NULL,
+    semester ENUM('1st Semester','2nd Semester') NULL,
     details VARCHAR(255) NULL,
     date_filed DATE NOT NULL,
     status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',

@@ -121,7 +121,7 @@ function formDialog(f = {}) {
       select(
         "semester",
         "Semester",
-        ["1st Semester", "2nd Semester", "Summer"].map((v) => [v, v]),
+        ["1st Semester", "2nd Semester"].map((v) => [v, v]),
         f.semester,
       ) +
       input("details", "Reason", f.details, "required"),

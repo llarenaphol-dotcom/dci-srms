@@ -65,7 +65,7 @@ if ($method === 'POST' || $method === 'PUT') {
     if ($newSchol && $newAmt <= 0)                                $fail('Enter an amount greater than 0.');
     if ($type === 'scholarship' && !$schol && !$newSchol)         $fail('Choose a scholarship.');
     if ($type === 'loa' && (!preg_match('/^(\d{4})-(\d{4})$/', $year, $y) || $y[2] != $y[1] + 1)) $fail('Enter the academic year as 2026-2027.');
-    if ($type === 'loa' && !in_array($semester, ['1st Semester', '2nd Semester', 'Summer'], true)) $fail('Choose a semester.');
+    if ($type === 'loa' && !in_array($semester, ['1st Semester', '2nd Semester'], true)) $fail('Choose a semester.');
     if ($details !== null && ($details === '' || mb_strlen($details) > 255)) $fail('Fill in the reason.');
     $d = date_create_from_format('Y-m-d', $date);
     if (!$d || $d->format('Y-m-d') !== $date)                    $fail('Choose a valid date.');
