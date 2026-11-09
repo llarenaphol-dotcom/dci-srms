@@ -79,7 +79,6 @@
   <div class="flex flex-wrap items-center justify-center md:justify-between gap-x-6 gap-y-2 px-6 md:px-14 py-6 text-xs">
     <span>© 2026 SRMS. All rights reserved.</span>
     <span>For authorized personnel only.</span>
-    <span class="flex gap-6"><a href="#" class="hover:underline">Privacy policy</a><a href="#" class="hover:underline">Terms of use</a></span>
   </div>
 </footer>`;
 
