@@ -125,15 +125,19 @@ function formDialog(f = {}) {
         f.semester,
       ) +
       input("details", "Reason", f.details, "required"),
-    scholarship: select(
-      "scholarship_id",
-      "Scholarship",
-      scholarships.map((s) => [
-        s.id,
-        `${s.name} (₱${Number(s.amount).toLocaleString()})`,
-      ]),
-      f.scholarship_id,
-    ),
+    scholarship:
+      select(
+        "scholarship_id",
+        "Scholarship",
+        scholarships
+          .map((s) => [
+            s.id,
+            `${s.name} (₱${Number(s.amount).toLocaleString()})`,
+          ])
+          .concat([["new", "+ New scholarship…"]]),
+        f.scholarship_id,
+      ) +
+      `<div id="new_schol" class="hidden">${input("new_name", "New scholarship name", "", 'maxlength="100"')}${input("new_amount", "Amount (₱)", "", 'type="number" min="1" step="0.01"')}</div>`,
   };
   dialog(
     editing ? "Edit form" : "New form",
@@ -169,6 +173,14 @@ function formDialog(f = {}) {
       return "";
     },
   );
+  // show the name / amount fields only when "+ New scholarship…" is picked
+  const pick = $("f_scholarship_id");
+  if (pick)
+    (pick.onchange = () => {
+      const on = pick.value === "new";
+      $("new_schol").classList.toggle("hidden", !on);
+      $("f_new_name").required = $("f_new_amount").required = on;
+    })();
 }
 
 $("add").onclick = () => formDialog();

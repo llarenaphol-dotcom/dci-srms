@@ -49,6 +49,9 @@ if ($method === 'POST' || $method === 'PUT') {
     $status   = $in['status'] ?? '';
     $course   = $type === 'drop' ? (int) ($in['course_id'] ?? 0) : null;
     $schol    = $type === 'scholarship' ? (int) ($in['scholarship_id'] ?? 0) : null;
+    $newSchol = $type === 'scholarship' && ($in['scholarship_id'] ?? '') === 'new'; // staff typed a new one in the dialog
+    $newName  = trim($in['new_name'] ?? '');
+    $newAmt   = (float) ($in['new_amount'] ?? 0);
     $year     = $type === 'loa' ? trim($in['academic_year'] ?? '') : null;
     $semester = $type === 'loa' ? ($in['semester'] ?? '') : null;
 
@@ -58,13 +61,25 @@ if ($method === 'POST' || $method === 'PUT') {
 
     if (!$student)                                                $fail('No student has that student no.');
     if ($type === 'drop' && !$course)                             $fail('Choose a subject.');
-    if ($type === 'scholarship' && !$schol)                       $fail('Choose a scholarship.');
+    if ($newSchol && ($newName === '' || mb_strlen($newName) > 100)) $fail('Enter the new scholarship name.');
+    if ($newSchol && $newAmt <= 0)                                $fail('Enter an amount greater than 0.');
+    if ($type === 'scholarship' && !$schol && !$newSchol)         $fail('Choose a scholarship.');
     if ($type === 'loa' && (!preg_match('/^(\d{4})-(\d{4})$/', $year, $y) || $y[2] != $y[1] + 1)) $fail('Enter the academic year as 2026-2027.');
     if ($type === 'loa' && !in_array($semester, ['1st Semester', '2nd Semester', 'Summer'], true)) $fail('Choose a semester.');
     if ($details !== null && ($details === '' || mb_strlen($details) > 255)) $fail('Fill in the reason.');
     $d = date_create_from_format('Y-m-d', $date);
     if (!$d || $d->format('Y-m-d') !== $date)                    $fail('Choose a valid date.');
     if (!in_array($status, ['Pending', 'Approved', 'Rejected'], true)) $fail('Choose a status.');
+
+    if ($newSchol) { // created only after everything else is valid, so a failed form leaves no stray scholarship
+        try {
+            $pdo->prepare('INSERT INTO scholarships (name, amount) VALUES (?, ?)')->execute([$newName, $newAmt]);
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] === 1062) $fail('That scholarship already exists. Choose it from the list.');
+            throw $e;
+        }
+        $schol = (int) $pdo->lastInsertId();
+    }
 
     if ($method === 'POST') {
         $pdo->prepare('INSERT INTO forms (student_id, form_type, course_id, scholarship_id, academic_year, semester, details, date_filed, status)
