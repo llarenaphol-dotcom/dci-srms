@@ -50,7 +50,7 @@
     shell.innerHTML = `
 <header class="topbar">
   <div class="flex items-center gap-3 px-6 md:px-14 h-20">
-    <div class="w-8 h-8 rounded-lg bg-white text-side text-[8px] font-bold grid place-items-center">SRMS</div>
+    <img src="assets/img/icon.svg" alt="SRMS logo" class="w-8 h-8 rounded-lg bg-white object-cover shadow-sm" />
     <span class="font-bold text-lg">SRMS</span>
     <span class="hidden sm:block h-8 w-px bg-white/20 mx-2"></span>
     <span class="hidden sm:block text-sm">Student Record Management System</span>
