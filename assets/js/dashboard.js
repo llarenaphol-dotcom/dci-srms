@@ -10,10 +10,16 @@ Chart.defaults.font.family = "Inter, sans-serif";
 
 function draw(id, type, rows, fmt = String) {
   const doughnut = type === "doughnut";
+  const total = rows.reduce((t, r) => t + +r[1], 0) || 1;
   new Chart($(id), {
     type,
     data: {
-      labels: rows.map((r) => fmt(r[0])),
+      // doughnut legend shows the numbers, e.g. "Active: 25 (83%)"
+      labels: rows.map((r) =>
+        doughnut
+          ? `${fmt(r[0])}: ${r[1]} (${Math.round((r[1] / total) * 100)}%)`
+          : fmt(r[0]),
+      ),
       datasets: [
         {
           data: rows.map((r) => r[1]),
